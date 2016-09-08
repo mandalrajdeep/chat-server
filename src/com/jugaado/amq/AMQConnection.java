@@ -17,243 +17,253 @@ import com.jugaado.chat.XmppManager;
 import com.jugaado.chat.util.Config;
 
 public class AMQConnection {
-	private static final String brokerURL = Config.AMQ_SERVER;
-	private ConnectionFactory connectionFactory;
-	private Connection connection;
-	private Session session;
-	private MessageProducer producer;
-	private MessageConsumer consumer;
-	private MessageProducer queueInProducer;
-	private MessageProducer queueOutProducer;
-	private MessageConsumer queueInConsumer;
-	private MessageConsumer queueOutConsumer;
-	private Topic incomingTopic;
-	private Topic outgoingTopic;
-	private Queue incomingQueue;
-	private Queue outgoingQueue;
-	
-	public AMQConnection getWhatsappInstance(){
-		
-		AMQConnection instance = null;
-		return instance;
-	}
-	
-	// We are using only the queues here
-	private static final String incomingTopicURL = "jugaado";
-	private static final String outgoinTopicURL = "outgoing_jugaado";
-	private static final String incomingQueueURL = Config.AMQ_INCOMING_QUEUE;
-	private static final String outgoingQueueURL = Config.AMQ_OUTGOING_QUEUE;
-	
-	public MessageProducer getProducer() {
-		if(producer!=null){
-			return producer;
-		}
-		try {
-			//consumer = getSession().createConsumer(getIncomingTopic());
-			producer = getSession().createProducer(getOutgoingTopic());
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-		return producer;
-	}
+    private static final String brokerURL = Config.AMQ_SERVER;
+    private ConnectionFactory connectionFactory;
+    private Connection connection;
+    private Session session;
+    private MessageProducer producer;
+    private MessageConsumer consumer;
+    private MessageProducer queueInProducer;
+    private MessageProducer queueOutProducer;
+    private MessageConsumer queueInConsumer;
+    private MessageConsumer queueOutConsumer;
+    private Topic incomingTopic;
+    private Topic outgoingTopic;
+    private Queue incomingQueue;
+    private Queue outgoingQueue;
 
-	public MessageConsumer getConsumer() {
-		if(consumer!=null){
-			return consumer;
-		}
-		try {
-			consumer = getSession().createConsumer(getIncomingTopic());
-			//producer = getSession().createProducer(getOutgoingTopic());
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-		return consumer;
-	}
-	
-	public MessageConsumer getInQueueConsumer() {
-		if(queueInConsumer!=null){
-			return queueInConsumer;
-		}
-		try {
-			queueInConsumer = getSession().createConsumer(getIncomingQueue());
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-		return queueInConsumer;
-	}
-	
-	public MessageConsumer getOutQueueConsumer() {
-		if(queueOutConsumer!=null){
-			return queueOutConsumer;
-		}
-		try {
-			queueOutConsumer = getSession().createConsumer(getOutgoingQueue());
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-		return queueOutConsumer;
-	}
-	
-	public MessageProducer getInQueueProducer() {
-		if(queueInProducer!=null){
-			return queueInProducer;
-		}
-		try {
-			queueInProducer = getSession().createProducer(getIncomingQueue());
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-		return queueInProducer;
-	}
-	
-	public MessageProducer getOutQueueProducer() {
-		if(queueOutProducer!=null){
-			return queueOutProducer;
-		}
-		try {
-			queueOutProducer = getSession().createProducer(getOutgoingQueue());
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-		return queueOutProducer;
-	}
+    public AMQConnection getWhatsappInstance() {
 
+        AMQConnection instance = null;
+        return instance;
+    }
 
-	
-	public AMQConnection(){
-		startConnection();
-	}
-	
-	public void startConnection(){
-		try {
-			getConnection().start();
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public Connection getConnection(){
-		if(connection!=null){
-			return connection;
-		}
-		String brokerUserName = Config.AMQ_USER;
-		String brokerPassword = Config.AMQ_PASSWORD;
-		try {
-			connection = getConnectionFactory().createConnection(brokerUserName, brokerPassword);
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-		return connection;
-	}
-	
-	public ConnectionFactory getConnectionFactory() {
-		if(connectionFactory==null){
-			connectionFactory = new ActiveMQConnectionFactory(brokerURL);
-		}
-		return connectionFactory;
-	}
-	
-	public Session getSession(){
-		if(session!=null){
-			return session;
-		}
-		try {
-			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-		return session;
-	}
-	
-	public Queue getIncomingQueue(){
-		if(incomingQueue!=null){
-			return incomingQueue;
-		}
-		try {
-			incomingQueue = getSession().createQueue(incomingQueueURL);
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-		return incomingQueue;
-	}
-	
-	public Queue getOutgoingQueue(){
-		if(outgoingQueue!=null){
-			return outgoingQueue;
-		}
-		try {
-			outgoingQueue = getSession().createQueue(outgoingQueueURL);
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-		return outgoingQueue;
-	}
-	
-	public Topic getIncomingTopic(){
-		if(incomingTopic!=null){
-			return incomingTopic;
-		}
-		try {
-			incomingTopic = getSession().createTopic(incomingTopicURL);
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-		return incomingTopic;
-	}
-	
-	public Topic getOutgoingTopic(){
-		if(outgoingTopic!=null){
-			return outgoingTopic;
-		}
-		try {
-			outgoingTopic = getSession().createTopic(outgoinTopicURL);
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-		return outgoingTopic;
-	}
-	
-	public void setIncomingAppMessage(String from, String body) throws XMPPException {
-		String incomingMessage = prepareAMQText(from, body);
-		
-		System.out.println("AMQConnection:Incoming message to AMQ:"+incomingMessage);
-		
-		ActiveMQTextMessage amqMessage = new ActiveMQTextMessage();
-		try {
-			amqMessage.setText(incomingMessage);
-			getInQueueProducer().send(amqMessage);
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-		XmppManager chatManager = new XmppManager(Config.SERVER, Integer.parseInt(Config.PORT));
-		chatManager.init();
-		from = from.split("@")[0];
-		try {
-			chatManager.performLogin(from, from);
-		} catch (XMPPException e) {
-			e.printStackTrace();
-		}
-	}
+    // We are using only the queues here
+    private static final String incomingTopicURL = "jugaado";
+    private static final String outgoinTopicURL = "outgoing_jugaado";
+    private static final String incomingQueueURL = Config.AMQ_INCOMING_QUEUE;
+    private static final String outgoingQueueURL = Config.AMQ_OUTGOING_QUEUE;
 
-	private String prepareAMQText(String from, String body) {
-		System.out.println("AMQConnection:FROM="+from);
-		String incomingMessage = from +"|" + body;
-		System.out.println("AMQConnection:INCOMING_MESSAGE="+incomingMessage);
-		return incomingMessage;
-	}
+    public MessageProducer getProducer() {
+        if (this.producer != null) {
+            return this.producer;
+        }
+        try {
+            // consumer = getSession().createConsumer(getIncomingTopic());
+            this.producer = getSession().createProducer(getOutgoingTopic());
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return this.producer;
+    }
 
-	public void setOutgoingAppMesssage(String correctedTo, String body) {
-		String outgoingMessage = prepareAMQText(correctedTo, body);
-		
-		System.out.println("AMQConnection:Outgoing message to AMQ:"+outgoingMessage);
-		
-		ActiveMQTextMessage amqMessage = new ActiveMQTextMessage();
-		try {
-			amqMessage.setText(outgoingMessage);
-			getOutQueueProducer().send(amqMessage);
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-	}
+    public MessageConsumer getConsumer() {
+        if (this.consumer != null) {
+            return this.consumer;
+        }
+        try {
+            this.consumer = getSession().createConsumer(getIncomingTopic());
+            // producer = getSession().createProducer(getOutgoingTopic());
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return this.consumer;
+    }
+
+    public MessageConsumer getInQueueConsumer() {
+        if (this.queueInConsumer != null) {
+            return this.queueInConsumer;
+        }
+        try {
+            this.queueInConsumer =
+                    getSession().createConsumer(getIncomingQueue());
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return this.queueInConsumer;
+    }
+
+    public MessageConsumer getOutQueueConsumer() {
+        if (this.queueOutConsumer != null) {
+            return this.queueOutConsumer;
+        }
+        try {
+            this.queueOutConsumer =
+                    getSession().createConsumer(getOutgoingQueue());
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return this.queueOutConsumer;
+    }
+
+    public MessageProducer getInQueueProducer() {
+        if (this.queueInProducer != null) {
+            return this.queueInProducer;
+        }
+        try {
+            this.queueInProducer =
+                    getSession().createProducer(getIncomingQueue());
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return this.queueInProducer;
+    }
+
+    public MessageProducer getOutQueueProducer() {
+        if (this.queueOutProducer != null) {
+            return this.queueOutProducer;
+        }
+        try {
+            this.queueOutProducer =
+                    getSession().createProducer(getOutgoingQueue());
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return this.queueOutProducer;
+    }
+
+    public AMQConnection() {
+        startConnection();
+    }
+
+    public void startConnection() {
+        try {
+            getConnection().start();
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Connection getConnection() {
+        if (this.connection != null) {
+            return this.connection;
+        }
+        String brokerUserName = Config.AMQ_USER;
+        String brokerPassword = Config.AMQ_PASSWORD;
+        try {
+            this.connection =
+                    getConnectionFactory().createConnection(brokerUserName,
+                        brokerPassword);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return this.connection;
+    }
+
+    public ConnectionFactory getConnectionFactory() {
+        if (this.connectionFactory == null) {
+            this.connectionFactory = new ActiveMQConnectionFactory(brokerURL);
+        }
+        return this.connectionFactory;
+    }
+
+    public Session getSession() {
+        if (this.session != null) {
+            return this.session;
+        }
+        try {
+            this.session =
+                    this.connection.createSession(false,
+                        Session.AUTO_ACKNOWLEDGE);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return this.session;
+    }
+
+    public Queue getIncomingQueue() {
+        if (this.incomingQueue != null) {
+            return this.incomingQueue;
+        }
+        try {
+            this.incomingQueue = getSession().createQueue(incomingQueueURL);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return this.incomingQueue;
+    }
+
+    public Queue getOutgoingQueue() {
+        if (this.outgoingQueue != null) {
+            return this.outgoingQueue;
+        }
+        try {
+            this.outgoingQueue = getSession().createQueue(outgoingQueueURL);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return this.outgoingQueue;
+    }
+
+    public Topic getIncomingTopic() {
+        if (this.incomingTopic != null) {
+            return this.incomingTopic;
+        }
+        try {
+            this.incomingTopic = getSession().createTopic(incomingTopicURL);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return this.incomingTopic;
+    }
+
+    public Topic getOutgoingTopic() {
+        if (this.outgoingTopic != null) {
+            return this.outgoingTopic;
+        }
+        try {
+            this.outgoingTopic = getSession().createTopic(outgoinTopicURL);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return this.outgoingTopic;
+    }
+
+    public void setIncomingAppMessage(String from, String body)
+            throws XMPPException {
+        String incomingMessage = prepareAMQText(from, body);
+
+        System.out.println("AMQConnection:Incoming message to AMQ:"
+                + incomingMessage);
+
+        ActiveMQTextMessage amqMessage = new ActiveMQTextMessage();
+        try {
+            amqMessage.setText(incomingMessage);
+            getInQueueProducer().send(amqMessage);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        XmppManager chatManager =
+                new XmppManager(Config.SERVER, Integer.parseInt(Config.PORT));
+        chatManager.init();
+        from = from.split("@")[0];
+        try {
+            chatManager.performLogin(from, from);
+        } catch (XMPPException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String prepareAMQText(String from, String body) {
+        System.out.println("AMQConnection:FROM=" + from);
+        String incomingMessage = from + "|" + body;
+        System.out.println("AMQConnection:INCOMING_MESSAGE=" + incomingMessage);
+        return incomingMessage;
+    }
+
+    public void setOutgoingAppMesssage(String correctedTo, String body) {
+        String outgoingMessage = prepareAMQText(correctedTo, body);
+
+        System.out.println("AMQConnection:Outgoing message to AMQ:"
+                + outgoingMessage);
+
+        ActiveMQTextMessage amqMessage = new ActiveMQTextMessage();
+        try {
+            amqMessage.setText(outgoingMessage);
+            getOutQueueProducer().send(amqMessage);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

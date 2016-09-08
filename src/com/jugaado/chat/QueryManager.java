@@ -6,15 +6,15 @@ import java.util.concurrent.Future;
 
 /**
  * Handles tasks and queries related to a user
- * @author ignatius
  *
+ * @author ignatius
  */
 public class QueryManager {
-	
-	private static ExecutorService fixedPool = Executors.newFixedThreadPool(10);
 
-	public static Future<?> submit(Task task) {
-		return fixedPool.submit(task);
-	}
-	
+    private static ExecutorService fixedPool = Executors.newFixedThreadPool(10);
+
+    public static Future<?> submit(Task task) {
+        return fixedPool.submit(task);
+    }
+
 }
