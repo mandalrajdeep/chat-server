@@ -78,7 +78,7 @@ public class XmppManager {
     	}
     	try {
 			accountManager.createAccount(username, password);
-			System.out.println("Account created with username :"+username);
+			System.out.println("XmppManager:Account created with username :"+username);
 		} catch (XMPPException e) {
 			e.printStackTrace();
 		}
@@ -86,7 +86,7 @@ public class XmppManager {
     
     public void init() throws XMPPException {
         
-        System.out.println(String.format("Initializing connection to server %1$s port %2$d", server, port));
+        System.out.println(String.format("XmppManager:Initializing connection to server %1$s port %2$d", server, port));
 
         SmackConfiguration.setPacketReplyTimeout(packetReplyTimeout);
         
@@ -98,7 +98,7 @@ public class XmppManager {
         connection = new XMPPConnection(config);
         connection.connect();
         
-        System.out.println("Connected: " + connection.isConnected());
+        System.out.println("XmppManager:Connected: " + connection.isConnected());
         
         chatManager = connection.getChatManager();
         messageListener = new MyMessageListener();
@@ -122,10 +122,10 @@ public class XmppManager {
             	//performLogout();
 				connection.login(username, password);
 			} catch (XMPPException e) {
-				System.out.println("Login Failed. Creating account...");
+				System.out.println("XmppManager:Login Failed. Creating account...");
 				createAccount(username, password);
 				connection.login(username, password);
-				System.out.println("Login Succeeded after creation of account!");
+				System.out.println("XmppManager:Login Succeeded after creation of account!");
 			}
             Roster roster = connection.getRoster();
             Collection<RosterEntry> collection = roster.getEntries();
@@ -136,6 +136,7 @@ public class XmppManager {
             	usernameToExecutiveMap.put(rosterEntry.getUser(), ce);
             	executivesAvailibityQueue.add(ce);
             	list.add(ce);
+            	System.out.println("gghggh");
             }
         }
         
@@ -170,20 +171,20 @@ public class XmppManager {
     }
     
     public void sendMessage(String message, String buddyJID) throws XMPPException {
-        System.out.println(String.format("Sending mesage '%1$s' to user %2$s", message, buddyJID));
+        System.out.println(String.format("XmppManager:Sending mesage '%1$s' to user %2$s", message, buddyJID));
         Chat chat = chatManager.createChat(buddyJID, messageListener);
         chat.sendMessage(message);
     }
     
     public void sendMessage(Message message) throws XMPPException {
-        System.out.println(String.format("Sending mesage '%1$s' to user %2$s", 
+        System.out.println(String.format("XmppManager:Sending mesage '%1$s' to user %2$s", 
         		message.getBody(), message.getTo()));
         Chat chat = chatManager.createChat(message.getTo(), messageListener);
         chat.sendMessage(message.getBody());
     }
     
     public void createEntry(String user, String name) throws Exception {
-        System.out.println(String.format("Creating entry for buddy '%1$s' with name %2$s", user, name));
+        System.out.println(String.format("XmppManager:Creating entry for buddy '%1$s' with name %2$s", user, name));
         Roster roster = connection.getRoster();
         roster.createEntry(user, name, null);
     }
@@ -192,16 +193,26 @@ public class XmppManager {
 
         @Override
         public void processMessage(Chat chat, Message message) {
-        	System.out.println("#####################################");
+        	System.out.println("XmppManager:##################################### I am here bro");
             String from = message.getFrom();
             String body = message.getBody();
             String to = message.getTo();
             
-            System.out.println(body);
-            System.out.println("From=" + from);
-            System.out.println("To=" + to);
+            if(body.contains("get set go meritnation:")) //&&  from == ("guest"))//s
+            {
+            	String browserid = body.split(":")[1];
+            	System.out.println("yo meritnation - " + browserid);
+            	createAccount(browserid, browserid);
+            	String browseriduserName = browserid + "_r2d2";
+            	createAccount(browseriduserName, browseriduserName);
+            	
+            }
+           // else{//soma{
+            
+            System.out.println("XmppManager:Body=" + body);
+            System.out.println("XmppManager:From=" + from);
+            System.out.println("XmppManager:To=" + to);
             Date date = new Date();
-            System.out.println(date);
             
             if(!checkIfFromExecutive(from) && to.startsWith("master@")){ 
             	//TODO: Remove this check when we 
@@ -220,6 +231,7 @@ public class XmppManager {
             	String correctedTo = to.split("_r2d2")[0] + to.split("_r2d2")[1];
             	amqBroker.setOutgoingAppMesssage(correctedTo, body);
             }
+        	//}//end else soma
         }
 
 		private boolean checkIfFromExecutive(String from) {
@@ -241,13 +253,13 @@ public class XmppManager {
 		if(user.contains("{")){
 			user = user.substring(1);
 		}
-		System.out.println("User to be mapped:"+user);
+		System.out.println("XmppManager:User to be mapped:"+user);
 		Roster roster = connection.getRoster();
 		roster.setSubscriptionMode(SubscriptionMode.accept_all);
 		Collection<RosterEntry> collection = roster.getEntries();
 		Presence presence;
 		
-		System.out.println("inProcessCustomers"+inProcessCustomers);
+		System.out.println("XmppManager:inProcessCustomers"+inProcessCustomers);
 		if(inProcessCustomers.contains(user)){
 			
 			String executive = customerExecutiveMap.get(user);
@@ -255,9 +267,8 @@ public class XmppManager {
 			presence = roster.getPresence(rEntry.getUser());
 			String status = presence.getType().name();
 			
-			//System.out.println(status);
 			if(status.equals("available")){
-				System.out.println("Already mapped getExecutive="+customerExecutiveMap.get(user));
+				System.out.println("XmppManager:Already mapped getExecutive="+customerExecutiveMap.get(user));
 				return customerExecutiveMap.get(user);
 			}
 			
@@ -270,14 +281,13 @@ public class XmppManager {
 		}
 		
 		Collections.sort(list);
-		System.out.println(list);
+		System.out.println("XmppManager:Roster" + list);
 		CustomerExecutive executive = list.get(0);
-		//System.out.println(executive);
 		executive.setCustomersCount(executive.getCustomersCount()+1);
 		customerExecutiveMap.put(user, executive.getUsername());
 		inProcessCustomers.add(user);
 		
-		System.out.println("getExecutive returns:"+executive.getUsername());
+		System.out.println("XmppManager:getExecutive returns:"+executive.getUsername());
 		return executive.getUsername();
 	}
     

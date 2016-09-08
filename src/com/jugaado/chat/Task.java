@@ -38,7 +38,7 @@ public class Task implements Runnable {
 	private synchronized void dispatchMessages() throws XMPPException {
 		String consolidatedMessage = consolidateMessages();
 		this.jmessageList = new ArrayList<JMessage>();
-		System.out.println(consolidatedMessage);
+		System.out.println("Task:consolidatedMessage=" + consolidatedMessage);
 		//Echo message
 		//ChatRouter.sendMessage(user, consolidatedMessage);
 		//Get executive and send

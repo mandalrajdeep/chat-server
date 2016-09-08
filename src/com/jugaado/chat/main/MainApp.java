@@ -22,25 +22,28 @@ public class MainApp {
 	private static ProducerThread producerThread = new ProducerThread();
 
 	public static void main(String[] args) throws XMPPException, FileNotFoundException, JMSException {
-		setupChatManager();
+		setupChatManager();//called once when the program starts
 		producerThread.start();
 		processIncomingMessages();
 		processOutgoingMessages();
 	}
 
 	private static void processOutgoingMessages() throws JMSException {
+		System.out.println("*********I am in Outgoing Messages*********" );
 		amqBroker.getOutQueueConsumer().setMessageListener(new OutQueueListener());
 	}
 
 	private static void processIncomingMessages() throws JMSException, FileNotFoundException {
+		System.out.println("*********I am in Incoming Messages*********" );
 		amqBroker.getInQueueConsumer().setMessageListener(new InQueueListener());
 	}
 
 	private static void setupChatManager() throws XMPPException {
-		manager = XmppManager
-				.getInstance(Config.SERVER, Integer.parseInt(Config.PORT));
+		System.out.println("*********I am in setupChatManager*********" );
+		manager = XmppManager.getInstance(Config.SERVER, Integer.parseInt(Config.PORT));
 		manager.init();
 		manager.performLogin(Config.USERNAME, Config.PASSWORD);
+		System.out.println("*********I am out of setupChatManager*********" );
 	}
 	
 	public static XmppManager getXmppManager() throws XMPPException {
@@ -61,11 +64,11 @@ public class MainApp {
 				String string = null;
 				try {
 					string = textMessage.getText();
-					System.out.println("Text message received:" + string);
+					System.out.println("MainApp:Text message received:" + string);
 					String userName = string.split("\\|")[0];
 					String body = string.split("\\|")[1];
-					System.out.println("User name="+userName);
-					System.out.println("Body="+body);
+					System.out.println("MainApp:User name="+userName);
+					System.out.println("MainApp:Body="+body);
 					JMessage jMessage = new JMessage(body, userName);
 					TaskManager.addMessage(jMessage);
 				} catch (JMSException | FileNotFoundException e2) {
@@ -86,7 +89,7 @@ public class MainApp {
 				String string = null;
 				try {
 					string = textMessage.getText();
-					System.out.println("OutQueueListener message=" + string);
+					System.out.println("MainApp:OutQueueListener message=" + string);
 					String userName = string.split("\\|")[0];
 					String message = string.split("\\|")[1];
 					ChatRouter.sendMessage(userName, message);

@@ -216,7 +216,7 @@ public class AMQConnection {
 	public void setIncomingAppMessage(String from, String body) throws XMPPException {
 		String incomingMessage = prepareAMQText(from, body);
 		
-		System.out.println("Incoming message to AMQ:"+incomingMessage);
+		System.out.println("AMQConnection:Incoming message to AMQ:"+incomingMessage);
 		
 		ActiveMQTextMessage amqMessage = new ActiveMQTextMessage();
 		try {
@@ -236,16 +236,16 @@ public class AMQConnection {
 	}
 
 	private String prepareAMQText(String from, String body) {
-		System.out.println("FROM="+from);
+		System.out.println("AMQConnection:FROM="+from);
 		String incomingMessage = from +"|" + body;
-		System.out.println("INCOMING_MESSAGE="+incomingMessage);
+		System.out.println("AMQConnection:INCOMING_MESSAGE="+incomingMessage);
 		return incomingMessage;
 	}
 
 	public void setOutgoingAppMesssage(String correctedTo, String body) {
 		String outgoingMessage = prepareAMQText(correctedTo, body);
 		
-		System.out.println("Outgoing message to AMQ:"+outgoingMessage);
+		System.out.println("AMQConnection:Outgoing message to AMQ:"+outgoingMessage);
 		
 		ActiveMQTextMessage amqMessage = new ActiveMQTextMessage();
 		try {

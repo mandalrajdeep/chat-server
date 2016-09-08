@@ -16,6 +16,8 @@ public class Config {
 	public static final String AMQ_PASSWORD = getProperty("amqPassword");
 	public static final String AMQ_INCOMING_QUEUE = getProperty("amqIncomingQ");
 	public static final String AMQ_OUTGOING_QUEUE = getProperty("amqOutgoingQ");
+	public static final String AUTOMATED_REPLY_QUERY_PATH = getProperty("automatedReplyCallPath");
+	public static final String AUTOMATED_RESPONSE_FILE = getProperty("automatedResponseFile");
 
 }
 

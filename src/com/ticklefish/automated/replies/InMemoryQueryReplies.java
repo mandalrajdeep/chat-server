@@ -12,11 +12,11 @@ public class InMemoryQueryReplies {
 	
 	private Map<String, String> repliesMap;
 	
-	public InMemoryQueryReplies() throws FileNotFoundException{
+	public InMemoryQueryReplies() throws FileNotFoundException {
 		repliesMap = new HashMap<String, String>();
 		
 		if(Config.AUTO_REPLY_ON == true){
-			Scanner scanner = new Scanner(new File("/root/jugaado/jugaadoHostMigration/reader/automatedReplies.txt"));
+			Scanner scanner = new Scanner(new File(Config.AUTOMATED_RESPONSE_FILE));
 			scanner.useDelimiter("\\Z");
 			String content = null;
 			
