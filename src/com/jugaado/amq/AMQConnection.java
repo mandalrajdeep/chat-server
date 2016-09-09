@@ -15,8 +15,11 @@ import org.jivesoftware.smack.XMPPException;
 
 import com.jugaado.chat.XmppManager;
 import com.jugaado.chat.util.Config;
+import com.jugaado.chat.util.MyLogger;
 
 public class AMQConnection {
+    private static MyLogger logger = MyLogger.getLogger(AMQConnection.class);
+
     private static final String brokerURL = Config.AMQ_SERVER;
     private ConnectionFactory connectionFactory;
     private Connection connection;
@@ -223,8 +226,7 @@ public class AMQConnection {
             throws XMPPException {
         String incomingMessage = prepareAMQText(from, body);
 
-        System.out.println("AMQConnection:Incoming message to AMQ:"
-                + incomingMessage);
+        logger.log("AMQConnection:Incoming message to AMQ:" + incomingMessage);
 
         ActiveMQTextMessage amqMessage = new ActiveMQTextMessage();
         try {
@@ -245,17 +247,16 @@ public class AMQConnection {
     }
 
     private String prepareAMQText(String from, String body) {
-        System.out.println("AMQConnection:FROM=" + from);
+        logger.log("AMQConnection:FROM=" + from);
         String incomingMessage = from + "|" + body;
-        System.out.println("AMQConnection:INCOMING_MESSAGE=" + incomingMessage);
+        logger.log("AMQConnection:INCOMING_MESSAGE=" + incomingMessage);
         return incomingMessage;
     }
 
     public void setOutgoingAppMesssage(String correctedTo, String body) {
         String outgoingMessage = prepareAMQText(correctedTo, body);
 
-        System.out.println("AMQConnection:Outgoing message to AMQ:"
-                + outgoingMessage);
+        logger.log("AMQConnection:Outgoing message to AMQ:" + outgoingMessage);
 
         ActiveMQTextMessage amqMessage = new ActiveMQTextMessage();
         try {

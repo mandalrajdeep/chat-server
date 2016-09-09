@@ -6,8 +6,11 @@ import java.io.IOException;
 import java.util.Scanner;
 
 import com.jugaado.chat.util.Config;
+import com.jugaado.chat.util.MyLogger;
 
 public class PythonQueryReply extends InMemoryQueryReplies {
+
+    private static MyLogger logger = MyLogger.getLogger(PythonQueryReply.class);
 
     public PythonQueryReply() throws FileNotFoundException {}
 
@@ -16,12 +19,11 @@ public class PythonQueryReply extends InMemoryQueryReplies {
         String reply = "Automated Reply is turned off";
         if (Config.AUTO_REPLY_ON) {
             try {
-                System.out
-                    .println("PythonQueryReply:Query received in getReply="
-                            + query);
-                System.out.println("PythonQueryReply:Query received in");
-                System.out.println(String.format("hola bola"));
-                System.out.println(String.format(query));
+                logger.log("PythonQueryReply:Query received in getReply="
+                        + query);
+                logger.log("PythonQueryReply:Query received in");
+                logger.log(String.format("hola bola"));
+                logger.log(String.format(query));
                 //
                 // Config.AUTOMATED_REPLY_QUERY_PATH
                 // Process process = new
@@ -34,13 +36,12 @@ public class PythonQueryReply extends InMemoryQueryReplies {
                 try {
                     int expectedZero = process.waitFor();
                     if (expectedZero != 0) {
-                        System.out
-                            .println("PythonQueryReply:Python process exited with status:"
+                        logger
+                            .log("PythonQueryReply:Python process exited with status:"
                                     + expectedZero);
                     } else {
-                        System.out
-                            .println("PythonQueryReply:Python did not exit:"
-                                    + expectedZero);
+                        logger.log("PythonQueryReply:Python did not exit:"
+                                + expectedZero);
 
                     }
                 } catch (InterruptedException e) {
@@ -51,7 +52,7 @@ public class PythonQueryReply extends InMemoryQueryReplies {
                         new Scanner(new File(Config.AUTOMATED_RESPONSE_FILE));
                 scanner.useDelimiter("\\Z");
                 reply = scanner.next();
-                System.out.println("Fuck Off" + reply);
+                logger.log("Fuck Off" + reply);
                 scanner.close();
             } catch (IOException e) {
                 e.printStackTrace();

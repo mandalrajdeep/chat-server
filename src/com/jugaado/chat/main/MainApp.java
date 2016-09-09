@@ -14,9 +14,13 @@ import com.jugaado.chat.JMessage;
 import com.jugaado.chat.TaskManager;
 import com.jugaado.chat.XmppManager;
 import com.jugaado.chat.util.Config;
+import com.jugaado.chat.util.MyLogger;
 import com.jugaado.mapping.ChatRouter;
 
 public class MainApp {
+
+    private static MyLogger logger = MyLogger.getLogger(MainApp.class);
+
     private static XmppManager manager;
     private static AMQConnection amqBroker = new AMQConnection();
     private static ProducerThread producerThread = new ProducerThread();
@@ -30,26 +34,26 @@ public class MainApp {
     }
 
     private static void processOutgoingMessages() throws JMSException {
-        System.out.println("*********I am in Outgoing Messages*********");
+        logger.log("*********I am in Outgoing Messages*********");
         amqBroker.getOutQueueConsumer().setMessageListener(
             new OutQueueListener());
     }
 
     private static void processIncomingMessages() throws JMSException,
             FileNotFoundException {
-        System.out.println("*********I am in Incoming Messages*********");
+        logger.log("*********I am in Incoming Messages*********");
         amqBroker.getInQueueConsumer()
             .setMessageListener(new InQueueListener());
     }
 
     private static void setupChatManager() throws XMPPException {
-        System.out.println("*********I am in setupChatManager*********");
+        logger.log("*********I am in setupChatManager*********");
         manager =
                 XmppManager.getInstance(Config.SERVER,
                     Integer.parseInt(Config.PORT));
         manager.init();
         manager.performLogin(Config.USERNAME, Config.PASSWORD);
-        System.out.println("*********I am out of setupChatManager*********");
+        logger.log("*********I am out of setupChatManager*********");
     }
 
     public static XmppManager getXmppManager() throws XMPPException {
@@ -70,16 +74,15 @@ public class MainApp {
                 String string = null;
                 try {
                     string = textMessage.getText();
-                    System.out.println("MainApp:Text message received:"
-                            + string);
+                    logger.log("MainApp:Text message received:" + string);
                     String userName = string.split("\\|")[0];
                     String body = string.split("\\|")[1];
-                    System.out.println("MainApp:User name=" + userName);
-                    System.out.println("MainApp:Body=" + body);
+                    logger.log("MainApp:User name=" + userName);
+                    logger.log("MainApp:Body=" + body);
                     JMessage jMessage = new JMessage(body, userName);
                     TaskManager.addMessage(jMessage);
-                } catch (JMSException | FileNotFoundException e2) {
-                    e2.printStackTrace();
+                } catch (JMSException | FileNotFoundException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -96,13 +99,12 @@ public class MainApp {
                 String string = null;
                 try {
                     string = textMessage.getText();
-                    System.out.println("MainApp:OutQueueListener message="
-                            + string);
+                    logger.log("MainApp:OutQueueListener message=" + string);
                     String userName = string.split("\\|")[0];
                     String message = string.split("\\|")[1];
                     ChatRouter.sendMessage(userName, message);
-                } catch (JMSException | XMPPException e2) {
-                    e2.printStackTrace();
+                } catch (JMSException | XMPPException e) {
+                    e.printStackTrace();
                 }
 
             }

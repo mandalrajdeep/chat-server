@@ -8,10 +8,13 @@ import org.jivesoftware.smack.XMPPException;
 
 import com.jugaado.chat.main.ListenTrigger;
 import com.jugaado.chat.util.Config;
+import com.jugaado.chat.util.MyLogger;
 import com.jugaado.mapping.ChatRouter;
 import com.ticklefish.automated.replies.AutomatedReply;
 
 public class Task implements Runnable {
+    private static MyLogger logger = MyLogger.getLogger(Task.class);
+
     private static final long TIMEOUT = Long.parseLong(Config.MESSAGE_TIMEOUT);
     private List<JMessage> jmessageList = new ArrayList<>();
     boolean isTimeOut;
@@ -38,7 +41,7 @@ public class Task implements Runnable {
     private synchronized void dispatchMessages() throws XMPPException {
         String consolidatedMessage = consolidateMessages();
         this.jmessageList = new ArrayList<JMessage>();
-        System.out.println("Task:consolidatedMessage=" + consolidatedMessage);
+        logger.log("Task:consolidatedMessage=" + consolidatedMessage);
         // Echo message
         // ChatRouter.sendMessage(user, consolidatedMessage);
         // Get executive and send
